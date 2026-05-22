@@ -17,7 +17,7 @@ export default function CanvasInitializer({ workflow }: CanvasInitializerProps) 
   const reset = useWorkflowStore((s) => s.reset);
 
   useEffect(() => {
-    loadWorkflow(workflow.id, workflow.name, workflow.is_active, workflow.graph);
+    loadWorkflow(workflow.id, workflow.name, workflow.is_active, workflow.trigger_slug, workflow.graph);
     return () => reset();
   }, [workflow, loadWorkflow, reset]);
 

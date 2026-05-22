@@ -8,7 +8,7 @@
  
  ## Current Goal
  
-- Build the Node Config Panel (Session 7) — clicking a node opens its configuration form on the right panel.
+- Build the Notion Integration (Session 8) — credentials manager, `lib/notion/client.ts`, and `notionCreatePage` executor node.
  
  ## Completed
  
@@ -48,13 +48,20 @@
    * `New Workflow` creation flow redirecting to the canvas page.
    * `npm run build` passes with zero TypeScript errors.
 
+ - **Session 7 complete:** Built the Node Config Panel:
+   * Updated Zustand store to include `updateNodeData` for direct node updates.
+   * Created specialized forms for Notion nodes (`notion_create_page`/`notion_update_page`), `condition` nodes, `delay` nodes, and `form_trigger` nodes.
+   * Node forms directly sync to Zustand, triggering the debounced auto-save.
+   * Built the `TriggerUrlBanner` which pins to the bottom of the canvas when a `form_trigger` node is selected, showing the dynamic webhook URL with a copy button.
+   * `npm run build` passes with zero TypeScript errors.
+
  ## In Progress
  
  - None.
  
  ## Next Up
  
- - **Session 7:** Build the Node Config Panel — clicking a node on the canvas opens its configuration form on the right panel.
+ - **Session 8:** Build the Notion Integration — credentials manager and `lib/notion/client.ts`. Implement the `notionCreatePage` executor node.
  - **Session 5:** Build `POST /api/ai/generate` — Anthropic Claude API call with the exact system prompt from the spec; response parsing and schema validation in `lib/ai/generateWorkflow.ts`.
  
  ## Open Questions

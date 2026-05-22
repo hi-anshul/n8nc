@@ -6,6 +6,8 @@ import {
   Background,
   BackgroundVariant,
   Controls,
+  ReactFlowProvider,
+  useReactFlow,
   type NodeMouseHandler,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -15,6 +17,7 @@ import TriggerNode from './nodes/TriggerNode';
 import ActionNode from './nodes/ActionNode';
 import ConditionNode from './nodes/ConditionNode';
 import DelayNode from './nodes/DelayNode';
+import type { NodeType, WorkflowNode } from '@/types/workflow';
 
 // ─── Node type registry ───────────────────────────────────────────────────────
 // Defined outside the component to avoid re-creation on every render.
@@ -63,15 +66,18 @@ interface WorkflowCanvasProps {
   workflowId: string;
 }
 
-export default function WorkflowCanvas({ workflowId }: WorkflowCanvasProps) {
+function CanvasContent({ workflowId }: WorkflowCanvasProps) {
   const nodes = useWorkflowStore((s) => s.nodes);
   const edges = useWorkflowStore((s) => s.edges);
   const isDirty = useWorkflowStore((s) => s.isDirty);
   const onNodesChange = useWorkflowStore((s) => s.onNodesChange);
   const onEdgesChange = useWorkflowStore((s) => s.onEdgesChange);
   const onConnect = useWorkflowStore((s) => s.onConnect);
+  const selectedNodeId = useWorkflowStore((s) => s.selectedNodeId);
   const setSelectedNodeId = useWorkflowStore((s) => s.setSelectedNodeId);
+  const addNode = useWorkflowStore((s) => s.addNode);
 
+  const { screenToFlowPosition } = useReactFlow();
   const autoSave = useDebouncedAutoSave(workflowId);
 
   // Trigger auto-save whenever the graph changes
@@ -80,6 +86,27 @@ export default function WorkflowCanvas({ workflowId }: WorkflowCanvasProps) {
       autoSave(nodes, edges);
     }
   }, [nodes, edges, isDirty, autoSave]);
+
+  // Global keydown listener for deleting the selected node
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if the user is typing in an input or textarea
+      if (
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        document.activeElement?.tagName === 'SELECT'
+      ) {
+        return;
+      }
+      
+      if ((e.key === 'Backspace' || e.key === 'Delete') && selectedNodeId) {
+        useWorkflowStore.getState().deleteNode(selectedNodeId);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNodeId]);
 
   const onNodeClick: NodeMouseHandler = useCallback(
     (_event, node) => setSelectedNodeId(node.id),
@@ -91,34 +118,84 @@ export default function WorkflowCanvas({ workflowId }: WorkflowCanvasProps) {
     [setSelectedNodeId]
   );
 
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const type = event.dataTransfer.getData('application/reactflow') as NodeType;
+
+      // check if the dropped element is valid
+      if (typeof type === 'undefined' || !type) {
+        return;
+      }
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const newNode: WorkflowNode = {
+        id: `node_${crypto.randomUUID()}`,
+        type,
+        position,
+        data: {
+          label: type === 'form_trigger' ? 'Form Trigger' :
+                 type === 'notion_create_page' ? 'Create Page' :
+                 type === 'notion_update_page' ? 'Update Page' :
+                 type === 'condition' ? 'Condition' : 'Delay',
+          description: '',
+          config: {},
+        },
+      };
+
+      addNode(newNode);
+    },
+    [screenToFlowPosition, addNode]
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onNodeClick={onNodeClick}
+      onPaneClick={onPaneClick}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      nodeTypes={nodeTypes}
+      fitView
+      fitViewOptions={{ padding: 0.2 }}
+      minZoom={0.3}
+      maxZoom={2}
+      proOptions={{ hideAttribution: true }}
+      className="bg-black"
+    >
+      <Background
+        variant={BackgroundVariant.Dots}
+        gap={24}
+        size={1}
+        color="#27272a"
+      />
+      <Controls
+        className="!bg-zinc-900 !border-zinc-800 !shadow-none [&>button]:!bg-zinc-900 [&>button]:!border-zinc-700 [&>button]:!text-zinc-400 [&>button:hover]:!bg-zinc-800 [&>button:hover]:!text-white"
+      />
+    </ReactFlow>
+  );
+}
+
+export default function WorkflowCanvas({ workflowId }: WorkflowCanvasProps) {
   return (
     <div className="flex-1 h-full w-full">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.3}
-        maxZoom={2}
-        proOptions={{ hideAttribution: true }}
-        className="bg-black"
-      >
-        <Background
-          variant={BackgroundVariant.Dots}
-          gap={24}
-          size={1}
-          color="#27272a"
-        />
-        <Controls
-          className="!bg-zinc-900 !border-zinc-800 !shadow-none [&>button]:!bg-zinc-900 [&>button]:!border-zinc-700 [&>button]:!text-zinc-400 [&>button:hover]:!bg-zinc-800 [&>button:hover]:!text-white"
-        />
-      </ReactFlow>
+      <ReactFlowProvider>
+        <CanvasContent workflowId={workflowId} />
+      </ReactFlowProvider>
     </div>
   );
 }

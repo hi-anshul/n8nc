@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { type Node, type Edge, type OnNodesChange, type OnEdgesChange, applyNodeChanges, applyEdgeChanges, addEdge, type Connection } from '@xyflow/react';
-import { WorkflowGraph } from '@/types/workflow';
+import { WorkflowGraph, WorkflowNode } from '@/types/workflow';
 
 // ─── State shape ─────────────────────────────────────────────────────────────
 
@@ -22,6 +22,7 @@ interface WorkflowStoreState {
   workflowId: string | null;
   workflowName: string;
   isActive: boolean;
+  triggerSlug: string | null;
   setWorkflowName: (name: string) => void;
   setIsActive: (active: boolean) => void;
 
@@ -30,8 +31,13 @@ interface WorkflowStoreState {
   markClean: () => void;
 
   // Lifecycle
-  loadWorkflow: (id: string, name: string, isActive: boolean, graph: WorkflowGraph) => void;
+  loadWorkflow: (id: string, name: string, isActive: boolean, triggerSlug: string | null, graph: WorkflowGraph) => void;
   reset: () => void;
+
+  // Node editing
+  updateNodeData: (id: string, dataUpdate: Record<string, unknown>) => void;
+  addNode: (node: WorkflowNode) => void;
+  deleteNode: (id: string) => void;
 }
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -43,6 +49,7 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
   workflowId: null,
   workflowName: '',
   isActive: false,
+  triggerSlug: null,
   isDirty: false,
 
   // ReactFlow change handlers — apply RFC patch operations and mark dirty
@@ -76,11 +83,12 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
   markClean: () => set({ isDirty: false }),
 
   // Hydrate store from a persisted workflow record
-  loadWorkflow: (id, name, isActive, graph) => {
+  loadWorkflow: (id, name, isActive, triggerSlug, graph) => {
     set({
       workflowId: id,
       workflowName: name,
       isActive,
+      triggerSlug,
       nodes: graph.nodes as unknown as Node[],
       edges: graph.edges as unknown as Edge[],
       isDirty: false,
@@ -97,7 +105,38 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
       workflowId: null,
       workflowName: '',
       isActive: false,
+      triggerSlug: null,
       isDirty: false,
     });
+  },
+
+  // Update specific node data and mark dirty
+  updateNodeData: (id, dataUpdate) => {
+    set((state) => ({
+      nodes: state.nodes.map((node) =>
+        node.id === id
+          ? { ...node, data: { ...node.data, ...dataUpdate } }
+          : node
+      ),
+      isDirty: true,
+    }));
+  },
+
+  // Add a new node to the canvas
+  addNode: (node) => {
+    set((state) => ({
+      nodes: [...state.nodes, node as unknown as Node],
+      isDirty: true,
+    }));
+  },
+
+  // Delete a node from the canvas
+  deleteNode: (id) => {
+    set((state) => ({
+      nodes: state.nodes.filter((n) => n.id !== id),
+      edges: state.edges.filter((e) => e.source !== id && e.target !== id),
+      selectedNodeId: state.selectedNodeId === id ? null : state.selectedNodeId,
+      isDirty: true,
+    }));
   },
 }));
