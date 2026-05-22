@@ -1,0 +1,206 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@xyflow/react/dist/style.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+    
+    /* Custom Design System Colors */
+    --color-bg-base: var(--bg-base);
+    --color-bg-surface: var(--bg-surface);
+    --color-bg-elevated: var(--bg-elevated);
+    --color-bg-hover: var(--bg-hover);
+    --color-bg-sidebar: var(--bg-sidebar);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
+    --color-button-primary: var(--button-primary);
+    --color-button-text: var(--button-text);
+    --color-border-default: var(--border-default);
+    --color-border-soft: var(--border-soft);
+    --color-state-success: var(--state-success);
+    --color-state-warning: var(--state-warning);
+    --color-state-error: var(--state-error);
+    --color-focus-ring: var(--focus-ring);
+
+    /* Shadcn/ui mapping */
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    /* Fonts mapping */
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+
+    /* Design System custom tokens */
+    --bg-base: #000000;
+    --bg-surface: #0A0A0A;
+    --bg-elevated: #111111;
+    --bg-hover: #171717;
+    --bg-sidebar: #050505;
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-muted: #737373;
+    --button-primary: #FFFFFF;
+    --button-text: #000000;
+    --border-default: #1F1F22;
+    --border-soft: #141416;
+    --state-success: #22C55E;
+    --state-warning: #F59E0B;
+    --state-error: #EF4444;
+    --focus-ring: #FFFFFF;
+
+    /* Base theme bindings */
+    --background: var(--bg-base);
+    --foreground: var(--text-primary);
+    --card: var(--bg-surface);
+    --card-foreground: var(--text-primary);
+    --popover: var(--bg-elevated);
+    --popover-foreground: var(--text-primary);
+    --primary: var(--button-primary);
+    --primary-foreground: var(--button-text);
+    --secondary: var(--bg-hover);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--bg-hover);
+    --muted-foreground: var(--text-secondary);
+    --accent: var(--bg-hover);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--state-error);
+    --destructive-foreground: #FFFFFF;
+    --border: var(--border-default);
+    --input: var(--border-default);
+    --ring: var(--focus-ring);
+    --radius: 0.625rem;
+
+    --sidebar: var(--bg-sidebar);
+    --sidebar-foreground: var(--text-primary);
+    --sidebar-primary: var(--button-primary);
+    --sidebar-primary-foreground: var(--button-text);
+    --sidebar-accent: var(--bg-hover);
+    --sidebar-accent-foreground: var(--text-primary);
+    --sidebar-border: var(--border-default);
+    --sidebar-ring: var(--focus-ring);
+}
+
+.dark {
+    /* Enforce same colors for dark components inside .dark selector */
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+
+    --bg-base: #000000;
+    --bg-surface: #0A0A0A;
+    --bg-elevated: #111111;
+    --bg-hover: #171717;
+    --bg-sidebar: #050505;
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-muted: #737373;
+    --button-primary: #FFFFFF;
+    --button-text: #000000;
+    --border-default: #1F1F22;
+    --border-soft: #141416;
+    --state-success: #22C55E;
+    --state-warning: #F59E0B;
+    --state-error: #EF4444;
+    --focus-ring: #FFFFFF;
+
+    --background: var(--bg-base);
+    --foreground: var(--text-primary);
+    --card: var(--bg-surface);
+    --card-foreground: var(--text-primary);
+    --popover: var(--bg-elevated);
+    --popover-foreground: var(--text-primary);
+    --primary: var(--button-primary);
+    --primary-foreground: var(--button-text);
+    --secondary: var(--bg-hover);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--bg-hover);
+    --muted-foreground: var(--text-secondary);
+    --accent: var(--bg-hover);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--state-error);
+    --destructive-foreground: #FFFFFF;
+    --border: var(--border-default);
+    --input: var(--border-default);
+    --ring: var(--focus-ring);
+
+    --sidebar: var(--bg-sidebar);
+    --sidebar-foreground: var(--text-primary);
+    --sidebar-primary: var(--button-primary);
+    --sidebar-primary-foreground: var(--button-text);
+    --sidebar-accent: var(--bg-hover);
+    --sidebar-accent-foreground: var(--text-primary);
+    --sidebar-border: var(--border-default);
+    --sidebar-ring: var(--focus-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  html {
+    @apply font-sans;
+  }
+  
+  /* Custom thin scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+}
