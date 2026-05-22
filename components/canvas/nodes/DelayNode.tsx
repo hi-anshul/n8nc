@@ -2,11 +2,13 @@
 
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { GitBranch } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { type BaseNodeData } from './TriggerNode';
 
-function ConditionNode({ data, selected }: NodeProps) {
+function DelayNode({ data, selected }: NodeProps) {
   const d = data as BaseNodeData;
+  const config = (d.config ?? {}) as { amount?: number; unit?: string };
+
   return (
     <div
       className={[
@@ -23,47 +25,33 @@ function ConditionNode({ data, selected }: NodeProps) {
       />
 
       <div className="flex items-center gap-2.5 mb-2">
-        <div className="h-7 w-7 rounded-lg bg-amber-950 border border-amber-900/60 flex items-center justify-center shrink-0">
-          <GitBranch className="h-3.5 w-3.5 text-amber-400" />
+        <div className="h-7 w-7 rounded-lg bg-zinc-900 border border-zinc-700/60 flex items-center justify-center shrink-0">
+          <Clock className="h-3.5 w-3.5 text-zinc-400" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider leading-none mb-0.5">
-            Condition
+            Delay
           </p>
           <p className="text-sm font-semibold text-white truncate leading-tight">
-            {String(d.label ?? 'If / Else')}
+            {String(d.label ?? 'Wait')}
           </p>
         </div>
-        <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+        <span className="h-2 w-2 rounded-full bg-zinc-500 shrink-0" />
       </div>
 
-      {d.description && (
+      {config.amount != null && config.unit ? (
+        <p className="text-xs text-zinc-500">Wait {config.amount} {config.unit}</p>
+      ) : d.description ? (
         <p className="text-xs text-zinc-500 leading-relaxed">{String(d.description)}</p>
-      )}
+      ) : null}
 
-      {/* True branch */}
       <Handle
         type="source"
         position={Position.Right}
-        id="true"
-        style={{ top: '35%' }}
-        className="!w-3 !h-3 !bg-emerald-700 !border-2 !border-emerald-500 hover:!bg-emerald-400 transition-colors"
+        className="!w-3 !h-3 !bg-zinc-600 !border-2 !border-zinc-400 hover:!bg-white transition-colors"
       />
-      {/* False branch */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="false"
-        style={{ top: '65%' }}
-        className="!w-3 !h-3 !bg-red-800 !border-2 !border-red-600 hover:!bg-red-400 transition-colors"
-      />
-
-      <div className="mt-2 flex justify-end flex-col items-end gap-1 text-[10px] text-zinc-600">
-        <span>true ↗</span>
-        <span>false ↘</span>
-      </div>
     </div>
   );
 }
 
-export default memo(ConditionNode);
+export default memo(DelayNode);

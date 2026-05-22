@@ -8,7 +8,7 @@
  
  ## Current Goal
  
-- Build the AI workflow generation route (`POST /api/ai/generate`) using Anthropic Claude API (Session 5).
+- Build the Node Config Panel (Session 7) — clicking a node opens its configuration form on the right panel.
  
  ## Completed
  
@@ -41,14 +41,21 @@
    * Installed `date-fns` for relative timestamp formatting.
    * `npm run build` passes with zero TypeScript errors.
 
+ - **Session 6 complete:** Built the canvas editor:
+   * Zustand store (`store/workflowStore.ts`) with ReactFlow synchronization and debounced auto-save.
+   * Four custom ReactFlow nodes (`TriggerNode`, `ActionNode`, `ConditionNode`, `DelayNode`) correctly typed for `@xyflow/react` v12.
+   * Server-rendered Canvas layout with three columns, `CanvasTopBar` for saving/activating, and `CanvasInitializer` for client hydration.
+   * `New Workflow` creation flow redirecting to the canvas page.
+   * `npm run build` passes with zero TypeScript errors.
+
  ## In Progress
  
  - None.
  
  ## Next Up
  
+ - **Session 7:** Build the Node Config Panel — clicking a node on the canvas opens its configuration form on the right panel.
  - **Session 5:** Build `POST /api/ai/generate` — Anthropic Claude API call with the exact system prompt from the spec; response parsing and schema validation in `lib/ai/generateWorkflow.ts`.
- - **Session 6:** Canvas editor — ReactFlow with custom node components (TriggerNode, ActionNode, ConditionNode) wired to Zustand store.
  
  ## Open Questions
  
