@@ -28,3 +28,32 @@ export interface WorkflowGraph {
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
 }
+
+// ─── Database row shape ───────────────────────────────────────────────────────
+
+export interface Workflow {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  graph: WorkflowGraph;
+  is_active: boolean;
+  trigger_slug: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── API input types ──────────────────────────────────────────────────────────
+
+export interface CreateWorkflowInput {
+  name: string;
+  description?: string;
+  graph?: WorkflowGraph;
+}
+
+export interface UpdateWorkflowInput {
+  name?: string;
+  description?: string;
+  graph?: WorkflowGraph;
+  is_active?: boolean;
+}
