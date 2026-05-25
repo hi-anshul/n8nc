@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { GitBranch, Clock, Trash2 } from 'lucide-react';
 import { Workflow } from '@/types/workflow';
 import { formatDistanceToNow } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function formatDate(iso: string): string {
   try {
@@ -15,10 +15,9 @@ function formatDate(iso: string): string {
   }
 }
 
-function triggerUrl(slug: string | null): string | null {
+function triggerUrlPath(slug: string | null): string | null {
   if (!slug) return null;
-  const base = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL ?? '';
-  return `${base}/api/trigger/${slug}`;
+  return `/api/trigger/${slug}`;
 }
 
 function StatusBadge({ active }: { active: boolean }) {
@@ -44,8 +43,16 @@ function StatusBadge({ active }: { active: boolean }) {
 
 export default function WorkflowRow({ workflow }: { workflow: Workflow }) {
   const router = useRouter();
-  const url = triggerUrl(workflow.trigger_slug);
+  const path = triggerUrlPath(workflow.trigger_slug);
+  const [baseUrl, setBaseUrl] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Set the base URL after hydration to prevent hydration mismatch errors
+  useEffect(() => {
+    setBaseUrl(window.location.origin);
+  }, []);
+
+  const url = path && baseUrl ? `${baseUrl}${path}` : path;
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
