@@ -1,4 +1,4 @@
-import { ExecutionContext } from '../index';
+import { ExecutionContext } from '@/types/executor';
 
 export interface FormTriggerConfig {
   webhookUrl?: string;

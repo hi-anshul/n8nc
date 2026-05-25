@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import { type Node } from '@xyflow/react';
 import { useWorkflowStore } from '@/store/workflowStore';
 import { SharedNodeHeader } from './SharedNodeHeader';
@@ -24,6 +26,26 @@ export function NotionConfigForm({ node }: NotionConfigFormProps) {
   const credentialId = (config.credentialId as string) || '';
   const databaseId = (config.databaseId as string) || '';
   const fieldMappings = (config.fieldMappings as FieldMapping[]) || [];
+
+  const [credentials, setCredentials] = useState<{ id: string; label: string }[]>([]);
+  const [loadingCreds, setLoadingCreds] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/credentials')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCredentials(data);
+        } else if (data.credentials) {
+          setCredentials(data.credentials);
+        }
+        setLoadingCreds(false);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch credentials', err);
+        setLoadingCreds(false);
+      });
+  }, []);
 
   const updateConfig = (updates: Record<string, unknown>) => {
     updateNodeData(node.id, { config: { ...config, ...updates } });
@@ -58,14 +80,20 @@ export function NotionConfigForm({ node }: NotionConfigFormProps) {
         {/* Core Settings */}
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-zinc-400">Credential ID</label>
-            <input
-              type="text"
+            <label className="text-xs font-medium text-zinc-400">Credential</label>
+            <select
               value={credentialId}
               onChange={(e) => updateConfig({ credentialId: e.target.value })}
-              className="w-full h-8 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 text-sm text-white focus:outline-none focus:border-zinc-600 transition-colors"
-              placeholder="Select credential..."
-            />
+              disabled={loadingCreds}
+              className="w-full h-8 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 text-sm text-white focus:outline-none focus:border-zinc-600 transition-colors disabled:opacity-50"
+            >
+              <option value="">Select a Notion credential...</option>
+              {credentials.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-1.5">

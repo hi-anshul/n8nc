@@ -5,15 +5,21 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { FileText } from 'lucide-react';
 import { type BaseNodeData } from './TriggerNode';
 
-function ActionNode({ data, selected }: NodeProps) {
+import { useWorkflowStore } from '@/store/workflowStore';
+
+function ActionNode({ id, data, selected }: NodeProps) {
   const d = data as BaseNodeData;
+  const execution = useWorkflowStore((s) => s.nodeExecutions[id]);
+
+  let borderClass = selected ? 'border-zinc-500 shadow-[0_0_0_1px_#71717a]' : 'border-zinc-800 hover:border-zinc-700';
+  if (execution?.status === 'success') borderClass = 'border-green-500 shadow-[0_0_0_1px_#22c55e]';
+  else if (execution?.status === 'error') borderClass = 'border-red-500 shadow-[0_0_0_1px_#ef4444]';
+
   return (
     <div
       className={[
         'min-w-[200px] rounded-2xl border bg-zinc-950 px-4 py-3 transition-all duration-150',
-        selected
-          ? 'border-zinc-500 shadow-[0_0_0_1px_#71717a]'
-          : 'border-zinc-800 hover:border-zinc-700',
+        borderClass,
       ].join(' ')}
     >
       <Handle

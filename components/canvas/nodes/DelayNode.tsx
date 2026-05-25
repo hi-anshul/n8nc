@@ -4,18 +4,22 @@ import { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { Clock } from 'lucide-react';
 import { type BaseNodeData } from './TriggerNode';
+import { useWorkflowStore } from '@/store/workflowStore';
 
-function DelayNode({ data, selected }: NodeProps) {
+function DelayNode({ id, data, selected }: NodeProps) {
   const d = data as BaseNodeData;
   const config = (d.config ?? {}) as { amount?: number; unit?: string };
+  const execution = useWorkflowStore((s) => s.nodeExecutions[id]);
+
+  let borderClass = selected ? 'border-zinc-500 shadow-[0_0_0_1px_#71717a]' : 'border-zinc-800 hover:border-zinc-700';
+  if (execution?.status === 'success') borderClass = 'border-green-500 shadow-[0_0_0_1px_#22c55e]';
+  else if (execution?.status === 'error') borderClass = 'border-red-500 shadow-[0_0_0_1px_#ef4444]';
 
   return (
     <div
       className={[
         'min-w-[200px] rounded-2xl border bg-zinc-950 px-4 py-3 transition-all duration-150',
-        selected
-          ? 'border-zinc-500 shadow-[0_0_0_1px_#71717a]'
-          : 'border-zinc-800 hover:border-zinc-700',
+        borderClass,
       ].join(' ')}
     >
       <Handle

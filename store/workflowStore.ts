@@ -38,6 +38,13 @@ interface WorkflowStoreState {
   updateNodeData: (id: string, dataUpdate: Record<string, unknown>) => void;
   addNode: (node: WorkflowNode) => void;
   deleteNode: (id: string) => void;
+
+  // Execution state
+  isExecuting: boolean;
+  nodeExecutions: Record<string, { status: string; error?: string }>;
+  setExecuting: (isExecuting: boolean) => void;
+  setNodeExecutions: (results: Record<string, any>) => void;
+  clearExecutions: () => void;
 }
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -139,4 +146,11 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
       isDirty: true,
     }));
   },
+
+  // Execution state
+  isExecuting: false,
+  nodeExecutions: {},
+  setExecuting: (isExecuting) => set({ isExecuting }),
+  setNodeExecutions: (results) => set({ nodeExecutions: results }),
+  clearExecutions: () => set({ nodeExecutions: {} }),
 }));

@@ -159,34 +159,65 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
   );
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onNodeClick={onNodeClick}
-      onPaneClick={onPaneClick}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      nodeTypes={nodeTypes}
-      fitView
-      fitViewOptions={{ padding: 0.2 }}
-      minZoom={0.3}
-      maxZoom={2}
-      proOptions={{ hideAttribution: true }}
-      className="bg-black"
-    >
-      <Background
-        variant={BackgroundVariant.Dots}
-        gap={24}
-        size={1}
-        color="#27272a"
-      />
-      <Controls
-        className="!bg-zinc-900 !border-zinc-800 !shadow-none [&>button]:!bg-zinc-900 [&>button]:!border-zinc-700 [&>button]:!text-zinc-400 [&>button:hover]:!bg-zinc-800 [&>button:hover]:!text-white"
-      />
-    </ReactFlow>
+    <div className="relative h-full w-full">
+      {/* Top action bar */}
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={async () => {
+            const store = useWorkflowStore.getState();
+            store.setExecuting(true);
+            store.clearExecutions();
+
+            try {
+              const res = await fetch(`/api/execute/${workflowId}`, { method: 'POST' });
+              const data = await res.json();
+              
+              if (data.success && data.execution) {
+                store.setNodeExecutions(data.execution.node_results || {});
+              } else {
+                alert(`Execution failed: ${data.error}`);
+              }
+            } catch (err: any) {
+              alert(`Execution request failed: ${err.message}`);
+            } finally {
+              store.setExecuting(false);
+            }
+          }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[color:var(--button-primary)] text-[color:var(--button-text)] text-sm font-medium rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-black/20"
+        >
+          Execute Workflow
+        </button>
+      </div>
+
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeClick={onNodeClick}
+        onPaneClick={onPaneClick}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+        nodeTypes={nodeTypes}
+        fitView
+        fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.3}
+        maxZoom={2}
+        proOptions={{ hideAttribution: true }}
+        className="bg-black"
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={24}
+          size={1}
+          color="#27272a"
+        />
+        <Controls
+          className="!bg-zinc-900 !border-zinc-800 !shadow-none [&>button]:!bg-zinc-900 [&>button]:!border-zinc-700 [&>button]:!text-zinc-400 [&>button:hover]:!bg-zinc-800 [&>button:hover]:!text-white"
+        />
+      </ReactFlow>
+    </div>
   );
 }
 

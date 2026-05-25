@@ -52,8 +52,15 @@
    * Updated Zustand store to include `updateNodeData` for direct node updates.
    * Created specialized forms for Notion nodes (`notion_create_page`/`notion_update_page`), `condition` nodes, `delay` nodes, and `form_trigger` nodes.
    * Node forms directly sync to Zustand, triggering the debounced auto-save.
-   * Built the `TriggerUrlBanner` which pins to the bottom of the canvas when a `form_trigger` node is selected, showing the dynamic webhook URL with a copy button.
    * `npm run build` passes with zero TypeScript errors.
+ - **Session 8 complete:** Built the Notion Integration:
+   * Credentials manager and `lib/notion/client.ts`.
+   * Implemented the `notionCreatePage` executor node logic.
+ - **Session 10 complete:** Executions UI:
+   * Built the `/executions` log page.
+   * Added the "Execute Workflow" button to the canvas.
+   * Added visual success/error states to canvas nodes.
+   * Updated Notion node to use a dynamic credentials dropdown.
 
  ## In Progress
  
@@ -61,12 +68,11 @@
  
  ## Next Up
  
- - **Session 8:** Build the Notion Integration — credentials manager and `lib/notion/client.ts`. Implement the `notionCreatePage` executor node.
  - **Session 5:** Build `POST /api/ai/generate` — Anthropic Claude API call with the exact system prompt from the spec; response parsing and schema validation in `lib/ai/generateWorkflow.ts`.
  
  ## Open Questions
  
- - None at this moment.
+ - The user skipped Session 5 (AI Generation) to build out the manual canvas first. This will be revisited later.
  
  ## Architecture Decisions
  
