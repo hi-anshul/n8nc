@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
+import { Undo2, Redo2 } from 'lucide-react';
 import {
   ReactFlow,
   Background,
@@ -84,6 +85,12 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
   const setSelectedNodeId = useWorkflowStore((s) => s.setSelectedNodeId);
   const addNode = useWorkflowStore((s) => s.addNode);
 
+  const undo = useWorkflowStore((s) => s.undo);
+  const redo = useWorkflowStore((s) => s.redo);
+  const past = useWorkflowStore((s) => s.past);
+  const future = useWorkflowStore((s) => s.future);
+  const saveHistory = useWorkflowStore((s) => s.saveHistory);
+
   const { screenToFlowPosition } = useReactFlow();
   const autoSave = useDebouncedAutoSave(workflowId);
 
@@ -94,7 +101,7 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
     }
   }, [nodes, edges, isDirty, autoSave]);
 
-  // Global keydown listener for deleting the selected node
+  // Global keydown listeners for delete, undo, and redo
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger if the user is typing in an input or textarea
@@ -105,15 +112,34 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
       ) {
         return;
       }
-      
+
       if ((e.key === 'Backspace' || e.key === 'Delete') && selectedNodeId) {
         useWorkflowStore.getState().deleteNode(selectedNodeId);
+      }
+
+      // Undo: Ctrl+Z or Cmd+Z
+      if (e.key === 'z' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        e.preventDefault();
+        useWorkflowStore.getState().undo();
+      }
+
+      // Redo: Ctrl+Y or Cmd+Shift+Z
+      if (
+        (e.key === 'y' && (e.ctrlKey || e.metaKey)) ||
+        (e.key === 'z' && (e.ctrlKey || e.metaKey) && e.shiftKey)
+      ) {
+        e.preventDefault();
+        useWorkflowStore.getState().redo();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedNodeId]);
+
+  const onNodeDragStart = useCallback(() => {
+    useWorkflowStore.getState().saveHistory();
+  }, []);
 
   const onNodeClick: NodeMouseHandler = useCallback(
     (_event, node) => setSelectedNodeId(node.id),
@@ -152,12 +178,12 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
         position,
         data: {
           label: type === 'form_trigger' ? 'Form Trigger' :
-                 type === 'google_sheets_trigger' ? 'Sheets Trigger' :
-                 type === 'google_sheets_append_row' ? 'Append Row' :
-                 type === 'notion_create_page' ? 'Create Page' :
-                 type === 'notion_update_page' ? 'Update Page' :
-                 type === 'gemini_text' ? 'Gemini AI' :
-                 type === 'condition' ? 'Condition' : 'Delay',
+            type === 'google_sheets_trigger' ? 'Sheets Trigger' :
+              type === 'google_sheets_append_row' ? 'Append Row' :
+                type === 'notion_create_page' ? 'Create Page' :
+                  type === 'notion_update_page' ? 'Update Page' :
+                    type === 'gemini_text' ? 'Gemini AI' :
+                      type === 'condition' ? 'Condition' : 'Delay',
           description: '',
           config: {},
         },
@@ -171,7 +197,26 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
   return (
     <div className="relative h-full w-full">
       {/* Top action bar */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <div className="flex items-center gap-1 bg-[color:var(--bg-surface)] border border-[color:var(--border-default)] p-1 rounded-xl shadow-lg shadow-black/20 mr-2">
+          <button
+            onClick={() => undo()}
+            disabled={past.length === 0}
+            className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => redo()}
+            disabled={future.length === 0}
+            className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+            title="Redo (Ctrl+Y)"
+          >
+            <Redo2 className="h-4 w-4" />
+          </button>
+        </div>
+
         <button
           onClick={async () => {
             const store = useWorkflowStore.getState();
@@ -181,7 +226,7 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
             try {
               const res = await fetch(`/api/execute/${workflowId}`, { method: 'POST' });
               const data = await res.json();
-              
+
               if (data.success && data.execution) {
                 store.setNodeExecutions(data.execution.node_results || {});
               } else {
@@ -206,6 +251,7 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
+        onNodeDragStart={onNodeDragStart}
         onPaneClick={onPaneClick}
         onDragOver={onDragOver}
         onDrop={onDrop}

@@ -45,6 +45,13 @@ interface WorkflowStoreState {
   setExecuting: (isExecuting: boolean) => void;
   setNodeExecutions: (results: Record<string, any>) => void;
   clearExecutions: () => void;
+
+  // Undo/Redo
+  past: { nodes: Node[]; edges: Edge[] }[];
+  future: { nodes: Node[]; edges: Edge[] }[];
+  saveHistory: () => void;
+  undo: () => void;
+  redo: () => void;
 }
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -61,6 +68,9 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
 
   // ReactFlow change handlers — apply RFC patch operations and mark dirty
   onNodesChange: (changes) => {
+    if (changes.some((c) => c.type === 'remove')) {
+      get().saveHistory();
+    }
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
       isDirty: true,
@@ -68,6 +78,9 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
   },
 
   onEdgesChange: (changes) => {
+    if (changes.some((c) => c.type === 'remove')) {
+      get().saveHistory();
+    }
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
       isDirty: true,
@@ -75,6 +88,7 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
   },
 
   onConnect: (connection) => {
+    get().saveHistory();
     set((state) => ({
       edges: addEdge(connection, state.edges),
       isDirty: true,
@@ -119,6 +133,7 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
 
   // Update specific node data and mark dirty
   updateNodeData: (id, dataUpdate) => {
+    get().saveHistory();
     set((state) => ({
       nodes: state.nodes.map((node) =>
         node.id === id
@@ -131,6 +146,7 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
 
   // Add a new node to the canvas
   addNode: (node) => {
+    get().saveHistory();
     set((state) => ({
       nodes: [...state.nodes, node as unknown as Node],
       isDirty: true,
@@ -139,6 +155,7 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
 
   // Delete a node from the canvas
   deleteNode: (id) => {
+    get().saveHistory();
     set((state) => ({
       nodes: state.nodes.filter((n) => n.id !== id),
       edges: state.edges.filter((e) => e.source !== id && e.target !== id),
@@ -153,4 +170,53 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
   setExecuting: (isExecuting) => set({ isExecuting }),
   setNodeExecutions: (results) => set({ nodeExecutions: results }),
   clearExecutions: () => set({ nodeExecutions: {} }),
+
+  // ─── Undo / Redo ─────────────────────────────────────────────────────────────
+  past: [],
+  future: [],
+  saveHistory: () => {
+    set((state) => {
+      // Don't save history if we haven't changed anything since last save
+      const lastPast = state.past[state.past.length - 1];
+      if (
+        lastPast &&
+        JSON.stringify(lastPast.nodes) === JSON.stringify(state.nodes) &&
+        JSON.stringify(lastPast.edges) === JSON.stringify(state.edges)
+      ) {
+        return state;
+      }
+      return {
+        past: [...state.past, { nodes: state.nodes, edges: state.edges }],
+        future: [],
+      };
+    });
+  },
+  undo: () => {
+    set((state) => {
+      if (state.past.length === 0) return state;
+      const previous = state.past[state.past.length - 1];
+      const newPast = state.past.slice(0, state.past.length - 1);
+      return {
+        past: newPast,
+        future: [{ nodes: state.nodes, edges: state.edges }, ...state.future],
+        nodes: previous.nodes,
+        edges: previous.edges,
+        isDirty: true,
+      };
+    });
+  },
+  redo: () => {
+    set((state) => {
+      if (state.future.length === 0) return state;
+      const next = state.future[0];
+      const newFuture = state.future.slice(1);
+      return {
+        past: [...state.past, { nodes: state.nodes, edges: state.edges }],
+        future: newFuture,
+        nodes: next.nodes,
+        edges: next.edges,
+        isDirty: true,
+      };
+    });
+  },
 }));
