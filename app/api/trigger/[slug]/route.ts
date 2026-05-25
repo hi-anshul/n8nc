@@ -40,6 +40,8 @@ export async function POST(
       });
     }
 
+    console.log('[Webhook Trigger Data]', triggerData);
+
     // 3. Execute Workflow Asynchronously
     // We intentionally don't await this so the webhook responds immediately (fire-and-forget).
     // Note: In a serverless environment like Vercel, fire-and-forget might get killed early. 

@@ -1,10 +1,14 @@
 import { Workflow } from '@/types/workflow';
 import { ExecutionContext, NodeResult } from '@/types/executor';
 import { execute as executeNotionCreatePage } from './nodes/notionCreatePage';
+import { execute as executeGoogleSheetsAppendRow } from './nodes/googleSheetsAppendRow';
+import { execute as executeGeminiText } from './nodes/geminiText';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 const NODE_HANDLERS: Record<string, Function> = {
   'notion_create_page': executeNotionCreatePage,
+  'google_sheets_append_row': executeGoogleSheetsAppendRow,
+  'gemini_text': executeGeminiText,
   // Add other node handlers here as they are implemented
 };
 
@@ -66,8 +70,8 @@ export async function runWorkflow(
       const currentNode = queue.shift()!;
       if (processed.has(currentNode.id)) continue;
 
-      // Special case: form_trigger just passes the triggerData through
-      if (currentNode.type === 'form_trigger') {
+      // Special case: triggers just pass the triggerData through
+      if (currentNode.type === 'form_trigger' || currentNode.type === 'google_sheets_trigger') {
         nodeResults[currentNode.id] = { status: 'success', output: triggerData };
         processed.add(currentNode.id);
         

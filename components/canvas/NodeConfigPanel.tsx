@@ -5,6 +5,9 @@ import { NotionConfigForm } from './forms/NotionConfigForm';
 import { ConditionConfigForm } from './forms/ConditionConfigForm';
 import { DelayConfigForm } from './forms/DelayConfigForm';
 import { TriggerConfigForm } from './forms/TriggerConfigForm';
+import { GoogleSheetsActionConfigForm } from './forms/GoogleSheetsActionConfigForm';
+import { GoogleSheetsTriggerConfigForm } from './forms/GoogleSheetsTriggerConfigForm';
+import { GeminiConfigForm } from './forms/GeminiConfigForm';
 
 export default function NodeConfigPanel() {
   const selectedNodeId = useWorkflowStore((s) => s.selectedNodeId);
@@ -30,6 +33,12 @@ export default function NodeConfigPanel() {
         <DelayConfigForm node={selectedNode} />
       ) : selectedNode.type === 'form_trigger' ? (
         <TriggerConfigForm node={selectedNode} />
+      ) : selectedNode.type === 'google_sheets_append_row' ? (
+        <GoogleSheetsActionConfigForm node={selectedNode} />
+      ) : selectedNode.type === 'google_sheets_trigger' ? (
+        <GoogleSheetsTriggerConfigForm node={selectedNode} />
+      ) : selectedNode.type === 'gemini_text' ? (
+        <GeminiConfigForm node={selectedNode} />
       ) : (
         <div className="text-sm text-zinc-500">Unknown node type.</div>
       )}

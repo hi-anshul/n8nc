@@ -2,8 +2,11 @@ export type NodeType =
   | 'form_trigger'
   | 'notion_create_page'
   | 'notion_update_page'
+  | 'google_sheets_append_row'
+  | 'gemini_text'
   | 'condition'
-  | 'delay';
+  | 'delay'
+  | 'google_sheets_trigger';
 
 export interface WorkflowNode {
   id: string;

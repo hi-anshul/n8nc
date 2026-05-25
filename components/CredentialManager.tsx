@@ -19,6 +19,7 @@ export default function CredentialManager({ initialCredentials }: CredentialMana
   const [testingId, setTestingId] = useState<string | null>(null);
   
   // Form state
+  const [service, setService] = useState('notion');
   const [label, setLabel] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +34,7 @@ export default function CredentialManager({ initialCredentials }: CredentialMana
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service: 'notion',
+          service,
           label,
           token,
         }),
@@ -125,10 +126,25 @@ export default function CredentialManager({ initialCredentials }: CredentialMana
         <form onSubmit={handleSave} className="p-6 bg-[color:var(--bg-elevated)] border border-[color:var(--border-default)] rounded-2xl space-y-4">
           <div className="flex items-center gap-2 text-sm font-medium text-[color:var(--text-primary)] mb-2">
             <ShieldCheck className="h-4 w-4 text-[color:var(--state-success)]" />
-            New Notion Integration
+            New Integration Credential
           </div>
           
           <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-[color:var(--text-secondary)] mb-1.5">
+                Service
+              </label>
+              <select
+                required
+                value={service}
+                onChange={(e) => setService(e.target.value)}
+                className="w-full h-10 bg-[color:var(--bg-surface)] border border-[color:var(--border-default)] rounded-xl px-3 text-sm text-[color:var(--text-primary)] focus:outline-none focus:border-[color:var(--border-active)]"
+              >
+                <option value="notion">Notion</option>
+                <option value="google_sheets">Google Sheets (Service Account)</option>
+                <option value="gemini">Gemini API</option>
+              </select>
+            </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--text-secondary)] mb-1.5">
                 Label (e.g. "My Workspace")
@@ -139,23 +155,33 @@ export default function CredentialManager({ initialCredentials }: CredentialMana
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 className="w-full h-10 bg-[color:var(--bg-surface)] border border-[color:var(--border-default)] rounded-xl px-3 text-sm text-[color:var(--text-primary)] focus:outline-none focus:border-[color:var(--border-active)]"
-                placeholder="My Notion Workspace"
+                placeholder={service === 'notion' ? "My Notion Workspace" : service === 'gemini' ? "Personal API Key" : "My Google Cloud Account"}
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-[color:var(--text-secondary)] mb-1.5">
-                Internal Integration Token
+                {service === 'notion' ? 'Internal Integration Token' : service === 'gemini' ? 'Gemini API Key' : 'Service Account JSON'}
               </label>
-              <input
-                type="password"
-                required
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                className="w-full h-10 bg-[color:var(--bg-surface)] border border-[color:var(--border-default)] rounded-xl px-3 text-sm text-[color:var(--text-primary)] focus:outline-none focus:border-[color:var(--border-active)] font-mono"
-                placeholder="secret_..."
-              />
+              {service === 'google_sheets' ? (
+                <textarea
+                  required
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  className="w-full h-32 bg-[color:var(--bg-surface)] border border-[color:var(--border-default)] rounded-xl p-3 text-xs text-[color:var(--text-primary)] focus:outline-none focus:border-[color:var(--border-active)] font-mono resize-none"
+                  placeholder='{"type": "service_account", ...}'
+                />
+              ) : (
+                <input
+                  type="password"
+                  required
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  className="w-full h-10 bg-[color:var(--bg-surface)] border border-[color:var(--border-default)] rounded-xl px-3 text-sm text-[color:var(--text-primary)] focus:outline-none focus:border-[color:var(--border-active)] font-mono"
+                  placeholder={service === 'gemini' ? "AIzaSy..." : "secret_..."}
+                />
+              )}
               <p className="text-[10px] text-[color:var(--text-muted)] mt-1.5">
-                Your token is encrypted immediately and never exposed to the browser again.
+                Your credential is encrypted immediately and never exposed to the browser again.
               </p>
             </div>
           </div>

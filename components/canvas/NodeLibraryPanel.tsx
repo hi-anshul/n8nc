@@ -6,8 +6,11 @@ import type { NodeType } from '@/types/workflow';
 export default function NodeLibraryPanel() {
   const nodeTypes: { label: string; type: NodeType; color: string }[] = [
     { label: 'Form Trigger', type: 'form_trigger', color: 'bg-emerald-500' },
+    { label: 'Sheets Trigger', type: 'google_sheets_trigger', color: 'bg-emerald-500' },
+    { label: 'Gemini AI', type: 'gemini_text', color: 'bg-purple-500' },
     { label: 'Create Page', type: 'notion_create_page', color: 'bg-blue-500' },
     { label: 'Update Page', type: 'notion_update_page', color: 'bg-blue-400' },
+    { label: 'Append Row', type: 'google_sheets_append_row', color: 'bg-[#0F9D58]' },
     { label: 'Condition', type: 'condition', color: 'bg-amber-500' },
     { label: 'Delay', type: 'delay', color: 'bg-zinc-500' },
   ];
