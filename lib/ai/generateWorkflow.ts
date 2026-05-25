@@ -15,15 +15,16 @@ You must output ONLY valid JSON matching the provided schema. No explanation, no
 Available node types:
 1. \`form_trigger\`: A starting node that receives data from a webhook/form.
 2. \`google_sheets_trigger\`: A starting node that receives row data when a Google Sheet is edited.
-3. \`gemini_text\`: An AI node that uses Gemini to generate text based on a prompt template (e.g. summarizing data).
-4. \`notion_create_page\`: An action node that creates a page/row in a Notion database.
-5. \`notion_update_page\`: An action node that updates an existing page in Notion.
-6. \`google_sheets_append_row\`: An action node that appends a row to a Google Sheet.
-7. \`condition\`: A routing node that branches logic based on rules.
-8. \`delay\`: A utility node that pauses execution for a set time.
+3. \`json_trigger\`: A starting node that allows users to send/paste a JSON payload directly from the canvas for execution.
+4. \`gemini_text\`: An AI node that uses Gemini to generate text based on a prompt template (e.g. summarizing data).
+5. \`notion_create_page\`: An action node that creates a page/row in a Notion database.
+6. \`notion_update_page\`: An action node that updates an existing page in Notion.
+7. \`google_sheets_append_row\`: An action node that appends a row to a Google Sheet.
+8. \`condition\`: A routing node that branches logic based on rules.
+9. \`delay\`: A utility node that pauses execution for a set time.
 
 Node placement rules:
-- form_trigger or google_sheets_trigger always at position { x: 100, y: 200 }
+- form_trigger, google_sheets_trigger, or json_trigger always at position { x: 100, y: 200 }
 - Each subsequent node 300px to the right of the previous
 - Leave config values as sensible defaults or empty strings — the user will fill them in
 
@@ -44,7 +45,7 @@ const workflowSchema: Schema = {
           id: { type: Type.STRING },
           type: { 
             type: Type.STRING,
-            enum: ["form_trigger", "google_sheets_trigger", "gemini_text", "notion_create_page", "notion_update_page", "google_sheets_append_row", "condition", "delay"]
+            enum: ["form_trigger", "google_sheets_trigger", "json_trigger", "gemini_text", "notion_create_page", "notion_update_page", "google_sheets_append_row", "condition", "delay"]
           },
           position: {
             type: Type.OBJECT,

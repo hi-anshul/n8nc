@@ -37,6 +37,7 @@ export async function runWorkflow(
   const executionId = execution.id;
   const nodeResults: Record<string, unknown> = {};
   let executionStatus: 'success' | 'error' = 'success';
+  let activeTriggerData: Record<string, any> = triggerData || {};
 
   try {
     const { nodes, edges } = workflow.graph;
@@ -72,9 +73,28 @@ export async function runWorkflow(
 
       // Special case: triggers just pass the triggerData through
       if (currentNode.type === 'form_trigger' || currentNode.type === 'google_sheets_trigger') {
-        nodeResults[currentNode.id] = { status: 'success', output: triggerData };
+        nodeResults[currentNode.id] = { status: 'success', output: activeTriggerData };
         processed.add(currentNode.id);
         
+        // Enqueue neighbors
+        const neighbors = adjacencyList[currentNode.id] || [];
+        queue.push(...neighbors.filter(n => n !== undefined));
+        continue;
+      }
+
+      if (currentNode.type === 'json_trigger') {
+        try {
+          const jsonStr = (currentNode.data.config?.testData as string) || '{}';
+          const parsed = JSON.parse(jsonStr);
+          activeTriggerData = parsed;
+          nodeResults[currentNode.id] = { status: 'success', output: parsed };
+        } catch (err: any) {
+          nodeResults[currentNode.id] = { status: 'error', error: `Invalid JSON in trigger configuration: ${err.message}` };
+          executionStatus = 'error';
+          break;
+        }
+        processed.add(currentNode.id);
+
         // Enqueue neighbors
         const neighbors = adjacencyList[currentNode.id] || [];
         queue.push(...neighbors.filter(n => n !== undefined));
@@ -93,7 +113,7 @@ export async function runWorkflow(
       // Build context
       const context: ExecutionContext = {
         supabase,
-        triggerData,
+        triggerData: activeTriggerData,
         previousOutputs: { ...nodeResults },
       };
 
@@ -131,6 +151,7 @@ export async function runWorkflow(
     .from('executions')
     .update({
       status: executionStatus,
+      trigger_data: activeTriggerData,
       node_results: nodeResults,
       finished_at: new Date().toISOString(),
     })

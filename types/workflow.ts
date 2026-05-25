@@ -6,7 +6,8 @@ export type NodeType =
   | 'gemini_text'
   | 'condition'
   | 'delay'
-  | 'google_sheets_trigger';
+  | 'google_sheets_trigger'
+  | 'json_trigger';
 
 export interface WorkflowNode {
   id: string;

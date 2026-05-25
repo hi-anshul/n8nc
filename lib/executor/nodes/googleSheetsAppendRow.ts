@@ -55,12 +55,12 @@ export async function execute(
   let maxColIndex = -1;
   const rowArray: any[] = [];
   const mappings = columnMappings || [];
-  
+
   for (const map of mappings) {
     if (!map.column) continue;
     const colStrMatch = map.column.match(/([A-Z]+)$/i);
     if (!colStrMatch) continue;
-    
+
     const colStr = colStrMatch[1].toUpperCase();
     let colIndex = 0;
     for (let i = 0; i < colStr.length; i++) {

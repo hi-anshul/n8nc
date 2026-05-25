@@ -23,6 +23,7 @@ import type { NodeType, WorkflowNode } from '@/types/workflow';
 import GoogleSheetsActionNode from './nodes/GoogleSheetsActionNode';
 import GoogleSheetsTriggerNode from './nodes/GoogleSheetsTriggerNode';
 import GeminiNode from './nodes/GeminiNode';
+import JsonTriggerNode from './nodes/JsonTriggerNode';
 
 // ─── Node type registry ───────────────────────────────────────────────────────
 // Defined outside the component to avoid re-creation on every render.
@@ -30,6 +31,7 @@ import GeminiNode from './nodes/GeminiNode';
 const nodeTypes = {
   form_trigger: TriggerNode,
   google_sheets_trigger: GoogleSheetsTriggerNode,
+  json_trigger: JsonTriggerNode,
   notion_create_page: ActionNode,
   notion_update_page: ActionNode,
   google_sheets_append_row: GoogleSheetsActionNode,
@@ -179,11 +181,12 @@ function CanvasContent({ workflowId }: WorkflowCanvasProps) {
         data: {
           label: type === 'form_trigger' ? 'Form Trigger' :
             type === 'google_sheets_trigger' ? 'Sheets Trigger' :
-              type === 'google_sheets_append_row' ? 'Append Row' :
-                type === 'notion_create_page' ? 'Create Page' :
-                  type === 'notion_update_page' ? 'Update Page' :
-                    type === 'gemini_text' ? 'Gemini AI' :
-                      type === 'condition' ? 'Condition' : 'Delay',
+              type === 'json_trigger' ? 'JSON Trigger' :
+                type === 'google_sheets_append_row' ? 'Append Row' :
+                  type === 'notion_create_page' ? 'Create Page' :
+                    type === 'notion_update_page' ? 'Update Page' :
+                      type === 'gemini_text' ? 'Gemini AI' :
+                        type === 'condition' ? 'Condition' : 'Delay',
           description: '',
           config: {},
         },

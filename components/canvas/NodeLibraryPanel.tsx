@@ -7,6 +7,7 @@ export default function NodeLibraryPanel() {
   const nodeTypes: { label: string; type: NodeType; color: string }[] = [
     { label: 'Form Trigger', type: 'form_trigger', color: 'bg-emerald-500' },
     { label: 'Sheets Trigger', type: 'google_sheets_trigger', color: 'bg-emerald-500' },
+    { label: 'JSON Trigger', type: 'json_trigger', color: 'bg-emerald-500' },
     { label: 'Gemini AI', type: 'gemini_text', color: 'bg-purple-500' },
     { label: 'Create Page', type: 'notion_create_page', color: 'bg-blue-500' },
     { label: 'Update Page', type: 'notion_update_page', color: 'bg-blue-400' },

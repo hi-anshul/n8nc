@@ -8,6 +8,7 @@ import { TriggerConfigForm } from './forms/TriggerConfigForm';
 import { GoogleSheetsActionConfigForm } from './forms/GoogleSheetsActionConfigForm';
 import { GoogleSheetsTriggerConfigForm } from './forms/GoogleSheetsTriggerConfigForm';
 import { GeminiConfigForm } from './forms/GeminiConfigForm';
+import { JsonTriggerConfigForm } from './forms/JsonTriggerConfigForm';
 
 export default function NodeConfigPanel() {
   const selectedNodeId = useWorkflowStore((s) => s.selectedNodeId);
@@ -39,6 +40,8 @@ export default function NodeConfigPanel() {
         <GoogleSheetsTriggerConfigForm node={selectedNode} />
       ) : selectedNode.type === 'gemini_text' ? (
         <GeminiConfigForm node={selectedNode} />
+      ) : selectedNode.type === 'json_trigger' ? (
+        <JsonTriggerConfigForm node={selectedNode} />
       ) : (
         <div className="text-sm text-zinc-500">Unknown node type.</div>
       )}

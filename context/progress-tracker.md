@@ -66,7 +66,13 @@
    * Built the `/workflows/new` AI prompt UI.
    * Implemented `POST /api/ai/generate` and `lib/ai/generateWorkflow.ts` utilizing Gemini Structured Outputs to strictly enforce JSON schemas.
    * Successfully connected the AI generation directly into the visual canvas!
-
+ - **Session 11 complete:** JSON Trigger Node Implementation:
+   * Added `json_trigger` type to `NodeType` union.
+   * Registered `json_trigger` node in AI prompt and validation schema.
+   * Created `JsonTriggerNode` canvas element with live JSON property preview on the card.
+   * Created `JsonTriggerConfigForm` config editor with real-time syntax error checking and automatic formatting.
+   * Updated workflow executor to parse the custom JSON payload and pass it downstream to integration nodes (like Notion).
+ 
  ## In Progress
  
  - None.
