@@ -61,6 +61,11 @@
    * Added the "Execute Workflow" button to the canvas.
    * Added visual success/error states to canvas nodes.
    * Updated Notion node to use a dynamic credentials dropdown.
+ - **Session 5 complete:** AI Workflow Generation:
+   * Replaced Anthropic Claude with Google Gemini API.
+   * Built the `/workflows/new` AI prompt UI.
+   * Implemented `POST /api/ai/generate` and `lib/ai/generateWorkflow.ts` utilizing Gemini Structured Outputs to strictly enforce JSON schemas.
+   * Successfully connected the AI generation directly into the visual canvas!
 
  ## In Progress
  
@@ -68,7 +73,7 @@
  
  ## Next Up
  
- - **Session 5:** Build `POST /api/ai/generate` — Anthropic Claude API call with the exact system prompt from the spec; response parsing and schema validation in `lib/ai/generateWorkflow.ts`.
+ - Extend the application with new node integrations (e.g. Google Sheets, OpenAI).
  
  ## Open Questions
  
